@@ -55,14 +55,11 @@ class ParserGenerator(object):
         def inner(func):
             def wrap(state_or_targ, targ=None):
                 real_targ = state_or_targ if targ is None else targ
-                print "CACA"
                 if len(real_targ) == len(syms):
-                    print "okay"
                     return func(state_or_targ) if targ is None else func(state_or_targ, targ)
 
                 end_targ = []
                 cursor = 0
-                print syms
                 for sym in syms:
                     if not sym.endswith("?"):
                         end_targ.append(real_targ[cursor])
@@ -79,11 +76,9 @@ class ParserGenerator(object):
 
             possibilities = list(self.generate_possibilities(syms))
             for possibility in possibilities:
-                print "adding:", possibility
                 self.productions.append((production_name, possibility.split(), wrap, precedence))
 
             if not possibilities:
-                print "adding:", syms
                 self.productions.append((production_name, syms, func, precedence))
 
             return inner
