@@ -30,18 +30,6 @@ class ParserGenerator(object):
         self.error_handler = None
 
     def production(self, rule, precedence=None):
-        parts = rule.split()
-        production_name = parts[0]
-        if parts[1] != ":":
-            raise ParserGeneratorError("Expecting :")
-        syms = parts[2:]
-
-        def inner(func):
-            self.productions.append((production_name, syms, func, precedence))
-            return func
-        return inner
-
-    def conditional_production(self, rule, precedence=None):
         from rply.token import Token
         parts = rule.split()
         production_name = parts[0]
