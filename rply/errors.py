@@ -19,9 +19,6 @@ class ParsingError(Exception):
     def getsourcepos(self):
         return self.source_pos
 
-    def __str__(self):
-        return "Error: '%s' line %s" % (self.message, self.source_pos)
-
 
 class ParserGeneratorWarning(Warning):
     pass

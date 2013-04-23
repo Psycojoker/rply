@@ -55,8 +55,7 @@ class LRParser(object):
                         self.error_handler(state, lookahead)
                     raise AssertionError("For now, error_handler must raise.")
                 else:
-                    import json
-                    raise ParsingError("%s can't be found in the lr action %s (number %s).\nAll rules:\n%s" % (lookahead, self.lr_table.lr_action[current_state], current_state, json.dumps(self.lr_table.lr_action, indent=4)), lookahead.getsourcepos())
+                    raise ParsingError(None, lookahead.getsourcepos())
 
     def _reduce_production(self, t, symstack, statestack, state):
         # reduce a symbol on the stack and emit a production
