@@ -49,9 +49,6 @@ class ParserGenerator(object):
             raise ParserGeneratorError("Expecting :")
         syms = parts[2:]
 
-        #positions = self.find_positions(syms)
-        #conditional_positions = [x[1] if x[0] in positions else None for x in enumerate(syms)]
-
         def inner(func):
             def wrap(state_or_targ, targ=None):
                 real_targ = state_or_targ if targ is None else targ
