@@ -50,6 +50,9 @@ class ParserGenerator(object):
                         end_targ.append(real_targ[cursor])
                         cursor += 1
 
+                    elif len(real_targ) <= cursor:
+                        end_targ.append(None)
+
                     elif (isinstance(real_targ[cursor], Token) or hasattr(real_targ[cursor], "name")) and real_targ[cursor].name == sym[:-1]:
                         end_targ.append(real_targ[cursor])
                         cursor += 1
