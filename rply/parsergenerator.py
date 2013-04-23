@@ -41,6 +41,84 @@ class ParserGenerator(object):
             return func
         return inner
 
+    def conditional_production(self, rule, precedence=None):
+        from rply.token import Token
+        parts = rule.split()
+        production_name = parts[0]
+        if parts[1] != ":":
+            raise ParserGeneratorError("Expecting :")
+        syms = parts[2:]
+
+        #positions = self.find_positions(syms)
+        #conditional_positions = [x[1] if x[0] in positions else None for x in enumerate(syms)]
+
+        def inner(func):
+            def wrap(state_or_targ, targ=None):
+                real_targ = state_or_targ if targ is None else targ
+                print "CACA"
+                if len(real_targ) == len(syms):
+                    print "okay"
+                    return func(state_or_targ) if targ is None else func(state_or_targ, targ)
+
+                end_targ = []
+                cursor = 0
+                print syms
+                for sym in syms:
+                    if not sym.endswith("?"):
+                        end_targ.append(real_targ[cursor])
+                        cursor += 1
+
+                    elif (isinstance(real_targ[cursor], Token) or hasattr(real_targ[cursor], "name")) and real_targ[cursor].name == sym[:-1]:
+                        end_targ.append(real_targ[cursor])
+                        cursor += 1
+
+                    else:
+                        end_targ.append(None)
+
+                return func(end_targ) if targ is None else func(state_or_targ, end_targ)
+
+            possibilities = list(self.generate_possibilities(syms))
+            for possibility in possibilities:
+                print "adding:", possibility
+                self.productions.append((production_name, possibility.split(), wrap, precedence))
+
+            if not possibilities:
+                print "adding:", syms
+                self.productions.append((production_name, syms, func, precedence))
+
+            return inner
+
+        return inner
+
+    def generate_possibilities_table(self, number):
+        result = []
+        def _generate_possibilities_table(sequence, position, end):
+            if position == end:
+                result.append(sequence[:])
+                return
+            sequence[position] = False
+            _generate_possibilities_table(sequence, position + 1, end)
+            sequence[position] = True
+            _generate_possibilities_table(sequence, position + 1, end)
+
+        if number:
+            _generate_possibilities_table([None]*number, 0, number)
+        return result
+
+    def find_positions(self, sequence):
+        positions = [x for x, y in enumerate(sequence) if y.endswith("?")]
+        return positions
+
+    def generate_possibilities(self, sequence):
+        positions = self.find_positions(sequence)
+        table = self.generate_possibilities_table(len(positions))
+        for possibilities in table:
+            to_print = [True]*len(sequence)
+            for possibility, position in zip(possibilities, positions):
+                to_print[position] = possibility
+
+            yield " ".join(map(lambda x: x[1], filter(lambda x: x[0], zip(to_print, sequence)))).replace("?", "")
+
     def error(self, func):
         self.error_handler = func
         return func
