@@ -81,7 +81,7 @@ class ParserGenerator(object):
             if not possibilities:
                 self.productions.append((production_name, syms, func, precedence))
 
-            return inner
+            return func
 
         return inner
 
