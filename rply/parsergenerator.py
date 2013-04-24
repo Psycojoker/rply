@@ -66,6 +66,10 @@ class ParserGenerator(object):
                     else:
                         end_targ.append(None)
 
+                if targ is None:
+                    state_or_targ = end_targ
+                else:
+                    targ = end_targ
                 return debug_call(func, state_or_targ, targ)
 
             possibilities = list(self.generate_possibilities(syms))
