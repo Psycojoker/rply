@@ -37,11 +37,17 @@ class ParserGenerator(object):
             raise ParserGeneratorError("Expecting :")
         syms = parts[2:]
 
+        def debug_call(func, state_or_targ, targ):
+            real_targ = state_or_targ if targ is None else targ
+            returned = func(state_or_targ) if targ is None else func(state_or_targ, targ)
+            print "%s (%s)\n%s\n-> %s\n" % (rule, func.func_name, real_targ, returned)
+            return returned
+
         def inner(func):
             def wrap(state_or_targ, targ=None):
                 real_targ = state_or_targ if targ is None else targ
                 if len(real_targ) == len(syms):
-                    return func(state_or_targ) if targ is None else func(state_or_targ, targ)
+                    return debug_call(func, state_or_targ, targ)
 
                 end_targ = []
                 cursor = 0
@@ -60,14 +66,16 @@ class ParserGenerator(object):
                     else:
                         end_targ.append(None)
 
-                return func(end_targ) if targ is None else func(state_or_targ, end_targ)
+                return debug_call(func, state_or_targ, targ)
 
             possibilities = list(self.generate_possibilities(syms))
             for possibility in possibilities:
                 self.productions.append((production_name, possibility.split(), wrap, precedence))
 
             if not possibilities:
-                self.productions.append((production_name, syms, func, precedence))
+                def debug_wrap(state_or_targ, targ=None):
+                    return debug_call(func, state_or_targ, targ)
+                self.productions.append((production_name, syms, debug_wrap, precedence))
 
             return func
 
