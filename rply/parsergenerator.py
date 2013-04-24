@@ -40,7 +40,7 @@ class ParserGenerator(object):
         def debug_call(func, state_or_targ, targ):
             real_targ = state_or_targ if targ is None else targ
             returned = func(state_or_targ) if targ is None else func(state_or_targ, targ)
-            print "%s (%s)\n%s\n-> %s\n" % (rule, func.func_name, real_targ, returned)
+            print "%s (%s)\n%s\n->\n%s\n" % (rule, func.func_name, real_targ, json.dumps(returned, indent=4))
             return returned
 
         def inner(func):
