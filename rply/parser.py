@@ -56,6 +56,7 @@ class LRParser(object):
                     raise AssertionError("For now, error_handler must raise.")
                 else:
                     print lookahead
+                    print ltype, "not in ", self.lr_table.lr_action[current_state]
                     raise ParsingError(None, lookahead.getsourcepos())
 
     def _reduce_production(self, t, symstack, statestack, state):
