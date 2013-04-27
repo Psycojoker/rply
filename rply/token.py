@@ -3,9 +3,11 @@ class BaseBox(object):
 
 
 class Token(BaseBox):
-    def __init__(self, name, value, source_pos=None):
+    def __init__(self, name, value, before_space="", after_space="", source_pos=None):
         self.name = name
         self.value = value
+        self.before_space = before_space
+        self.after_space = after_space
         self.source_pos = source_pos
 
     def __repr__(self):
