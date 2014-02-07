@@ -7,7 +7,7 @@ from rply.token import SourcePosition
 from rply.errors import ParserGeneratorWarning
 
 from .base import BaseTests
-from .utils import FakeLexer, RecordingLexer, BoxInt, ParserState
+from .utils import RecordingLexer, BoxInt, ParserState
 
 
 class TestParser(BaseTests):
@@ -20,7 +20,8 @@ class TestParser(BaseTests):
 
         parser = pg.build()
 
-        assert parser.parse(FakeLexer([Token("VALUE", "abc")])) == Token("VALUE", "abc")
+        token = parser.parse(iter([Token("VALUE", "abc")]))
+        assert token == Token("VALUE", "abc")
 
     def test_arithmetic(self):
         pg = ParserGenerator(["NUMBER", "PLUS"])
@@ -39,7 +40,7 @@ class TestParser(BaseTests):
 
         with self.assert_warns(ParserGeneratorWarning, "1 shift/reduce conflict"):
             parser = pg.build()
-        assert parser.parse(FakeLexer([
+        assert parser.parse(iter([
             Token("NUMBER", "1"),
             Token("PLUS", "+"),
             Token("NUMBER", "4")
@@ -69,7 +70,7 @@ class TestParser(BaseTests):
             return None
 
         parser = pg.build()
-        assert parser.parse(FakeLexer([
+        assert parser.parse(iter([
             Token("VALUE", "abc"),
             Token("SPACE", " "),
             Token("VALUE", "def"),
@@ -77,7 +78,7 @@ class TestParser(BaseTests):
             Token("VALUE", "ghi"),
         ])) == ["abc", "def", "ghi"]
 
-        assert parser.parse(FakeLexer([])) == []
+        assert parser.parse(iter([])) == []
 
     def test_precedence(self):
         pg = ParserGenerator(["NUMBER", "PLUS", "TIMES"], precedence=[
@@ -103,7 +104,7 @@ class TestParser(BaseTests):
 
         parser = pg.build()
 
-        assert parser.parse(FakeLexer([
+        assert parser.parse(iter([
             Token("NUMBER", "3"),
             Token("TIMES", "*"),
             Token("NUMBER", "4"),
@@ -135,7 +136,7 @@ class TestParser(BaseTests):
         with self.assert_warns(ParserGeneratorWarning, "1 shift/reduce conflict"):
             parser = pg.build()
 
-        assert parser.parse(FakeLexer([
+        assert parser.parse(iter([
             Token("MINUS", "-"),
             Token("NUMBER", "4"),
             Token("MINUS", "-"),
@@ -152,7 +153,7 @@ class TestParser(BaseTests):
         parser = pg.build()
 
         with py.test.raises(ParsingError) as exc_info:
-            parser.parse(FakeLexer([
+            parser.parse(iter([
                 Token("VALUE", "hello"),
                 Token("VALUE", "world", SourcePosition(5, 10, 2)),
             ]))
@@ -175,7 +176,7 @@ class TestParser(BaseTests):
         token = Token("VALUE", "world")
 
         with py.test.raises(ValueError) as exc_info:
-            parser.parse(FakeLexer([
+            parser.parse(iter([
                 Token("VALUE", "hello"),
                 token
             ]))
@@ -205,7 +206,7 @@ class TestParser(BaseTests):
         parser = pg.build()
 
         state = ParserState()
-        assert parser.parse(FakeLexer([
+        assert parser.parse(iter([
             Token("NUMBER", "10"),
             Token("PLUS", "+"),
             Token("NUMBER", "12"),
@@ -230,7 +231,7 @@ class TestParser(BaseTests):
         state = ParserState()
         token = Token("VALUE", "")
         with py.test.raises(ValueError) as exc_info:
-            parser.parse(FakeLexer([token]), state=state)
+            parser.parse(iter([token]), state=state)
 
         assert exc_info.value.args[0] is state
         assert exc_info.value.args[1] is token

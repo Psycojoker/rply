@@ -42,17 +42,59 @@ class Match(object):
 
 
 class LexerGenerator(object):
+    """
+    A LexerGenerator represents a set of rules that match pieces of text that
+    should either be turned into tokens or ignored by the lexer.
+
+    Rules are added using the :meth:`add` and :meth:`ignore` methods:
+
+    >>> from rply import LexerGenerator
+    >>> lg = LexerGenerator()
+    >>> lg.add('NUMBER', r'\d+')
+    >>> lg.add('ADD', r'\+')
+    >>> lg.ignore(r'\s+')
+
+    You can then build a lexer with which you can lex a string to produce an
+    iterator yielding tokens:
+
+    >>> lexer = lg.build()
+    >>> iterator = lexer.lex('1 + 1')
+    >>> iterator.next()
+    Token('NUMBER', '1')
+    >>> iterator.next()
+    Token('ADD', '+')
+    >>> iterator.next()
+    Token('NUMBER', '1')
+    >>> iterator.next()
+    Traceback (most recent call last):
+    ...
+    StopIteration
+    """
+
     def __init__(self):
         self.rules = []
         self.ignore_rules = []
 
     def add(self, name, pattern):
+        """
+        Adds a rule with the given `name` and `pattern`. In case of ambiguity,
+        the first rule added wins.
+        """
         self.rules.append(Rule(name, pattern))
 
     def ignore(self, pattern):
+        """
+        Adds a rule whose matched value will be ignored. Ignored rules will be
+        matched before regular ones.
+        """
         self.ignore_rules.append(Rule("", pattern))
 
     def build(self):
+        """
+        Returns a lexer instance, which provides a `lex` method that must be
+        called with a string and returns an iterator yielding
+        :class:`~rply.Token` instances.
+        """
         return Lexer(self.rules, self.ignore_rules)
 
 if rpython:
@@ -123,7 +165,8 @@ if rpython:
 
             list_repr = FixedSizeListRepr(rtyper, rtyper.getrepr(model.SomeInteger(nonneg=True)))
             list_repr._setup_repr()
-            self.lowleveltype = lltype.Ptr(lltype.GcStruct("RULE",
+            self.lowleveltype = lltype.Ptr(lltype.GcStruct(
+                "RULE",
                 ("name", lltype.Ptr(STR)),
                 ("code", list_repr.lowleveltype),
             ))
@@ -154,7 +197,8 @@ if rpython:
             c_MATCH_CONTEXT_INIT = hop.inputconst(lltype.Void, self.match_context_init_repr)
             c_MATCH_CONTEXT = hop.inputconst(lltype.Void, self.match_context_repr)
 
-            return hop.gendirectcall(LLRule.ll_matches,
+            return hop.gendirectcall(
+                LLRule.ll_matches,
                 c_MATCHTYPE, c_MATCH_INIT, c_MATCH_CONTEXTTYPE,
                 c_MATCH_CONTEXT_INIT, c_MATCH_CONTEXT, v_rule, v_s, v_pos
             )
@@ -170,13 +214,15 @@ if rpython:
             s = hlstr(s)
             assert pos >= 0
             ctx = instantiate(MATCH_CONTEXTTYPE)
-            hlinvoke(MATCH_CONTEXT_INIT, rsre_core.StrMatchContext.__init__,
+            hlinvoke(
+                MATCH_CONTEXT_INIT, rsre_core.StrMatchContext.__init__,
                 ctx, ll_rule.code, hlstr(s), pos, len(s), 0
             )
             matched = hlinvoke(MATCH_CONTEXT, rsre_core.match_context, ctx)
             if matched:
                 match = instantiate(MATCHTYPE)
-                hlinvoke(MATCH_INIT, Match.__init__,
+                hlinvoke(
+                    MATCH_INIT, Match.__init__,
                     match, ctx.match_start, ctx.match_end
                 )
                 return match
