@@ -33,6 +33,9 @@ class Token(BaseBox):
             return NotImplemented
         return self.name == other.name and self.value == other.value
 
+    def render(self):
+        return self.before_space + self.value + self.after_space
+
     def gettokentype(self):
         """
         Returns the type or name of the token.
