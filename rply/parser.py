@@ -16,6 +16,9 @@ class LRParser(object):
         symstack = [Token("$end", "$end")]
 
         current_state = 0
+
+        parsed_file_content = ""
+
         while True:
             if self.lr_table.default_reductions[current_state]:
                 t = self.lr_table.default_reductions[current_state]
@@ -28,6 +31,7 @@ class LRParser(object):
                 else:
                     try:
                         lookahead = next(tokenizer)
+                        parsed_file_content += lookahead.render()
                     except StopIteration:
                         lookahead = None
 
@@ -58,9 +62,14 @@ class LRParser(object):
                         self.error_handler(state, lookahead)
                     raise AssertionError("For now, error_handler must raise.")
                 else:
-                    print lookahead
-                    print ltype, "not in ", self.lr_table.lr_action[current_state]
-                    raise ParsingError(None, lookahead.getsourcepos())
+                    debug_output = parsed_file_content.split("\n")
+                    debug_output = zip(range(1, len(debug_output) + 1), debug_output)
+                    debug_output = debug_output[-4:]
+                    debug_output = "\n".join(map(lambda x: "%4s %s" % (x[0], x[1]), debug_output))
+                    debug_output += "<---- here"
+                    debug_output = "Error, got an unexpected toke %s here:\n\n" % ltype + debug_output
+                    debug_output += "\n\nThe token %s should be one of those: %s" % (ltype, ", ".join(sorted(self.lr_table.lr_action[current_state].keys())))
+                    raise ParsingError(debug_output)
 
     def _reduce_production(self, t, symstack, statestack, state):
         # reduce a symbol on the stack and emit a production
