@@ -31,12 +31,13 @@ class LRParser(object):
                 else:
                     try:
                         lookahead = next(tokenizer)
-                        parsed_file_content += lookahead.render()
                     except StopIteration:
                         lookahead = None
 
                 if lookahead is None:
                     lookahead = Token("$end", "$end")
+                else:
+                    parsed_file_content += lookahead.render()
 
             ltype = lookahead.gettokentype()
             if ltype in self.lr_table.lr_action[current_state]:
