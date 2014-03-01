@@ -18,12 +18,13 @@ class Token(BaseBox):
                        position of the first character in the source from which
                        this token was generated.
     """
-    def __init__(self, name, value, before_space="", after_space="", hidden_tokens=None):
+    def __init__(self, name, value, before_space="", after_space="", hidden_tokens_before=None, hidden_tokens_after=None):
         self.name = name
         self.value = value
         self.before_space = before_space
         self.after_space = after_space
-        self.hidden_tokens = map(Token, hidden_tokens if hidden_tokens else [])
+        self.hidden_tokens_before = map(lambda x: Token(*x), hidden_tokens_before if hidden_tokens_before else [])
+        self.hidden_tokens_after = map(lambda x: Token(*x), hidden_tokens_after if hidden_tokens_after else [])
 
     def __repr__(self):
         return "Token(%r, %r)" % (self.name, self.value)
