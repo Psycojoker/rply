@@ -23,7 +23,7 @@ class Token(BaseBox):
         self.value = value
         self.before_space = before_space
         self.after_space = after_space
-        self.hidden_tokens = hidden_tokens if hidden_tokens else []
+        self.hidden_tokens = map(Token, hidden_tokens if hidden_tokens else [])
 
     def __repr__(self):
         return "Token(%r, %r)" % (self.name, self.value)
