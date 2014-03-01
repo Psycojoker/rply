@@ -18,12 +18,11 @@ class Token(BaseBox):
                        position of the first character in the source from which
                        this token was generated.
     """
-    def __init__(self, name, value, before_space="", after_space="", source_pos=None, hidden_tokens=None):
+    def __init__(self, name, value, before_space="", after_space="", hidden_tokens=None):
         self.name = name
         self.value = value
         self.before_space = before_space
         self.after_space = after_space
-        self.source_pos = source_pos
         self.hidden_tokens = hidden_tokens if hidden_tokens else []
 
     def __repr__(self):
@@ -42,13 +41,6 @@ class Token(BaseBox):
         Returns the type or name of the token.
         """
         return self.name
-
-    def getsourcepos(self):
-        """
-        Returns a :class:`SourcePosition` instance, describing the position of
-        this token's first character in the source.
-        """
-        return self.source_pos
 
     def getstr(self):
         """
