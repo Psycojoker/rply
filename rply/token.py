@@ -18,13 +18,24 @@ class Token(BaseBox):
                        position of the first character in the source from which
                        this token was generated.
     """
-    def __init__(self, name, value, before_space="", after_space="", hidden_tokens_before=None, hidden_tokens_after=None):
+    def __init__(self, name, value, hidden_tokens_before=None, hidden_tokens_after=None):
         self.name = name
         self.value = value
-        self.before_space = before_space
-        self.after_space = after_space
-        self.hidden_tokens_before = map(lambda x: Token(*x), hidden_tokens_before if hidden_tokens_before else [])
-        self.hidden_tokens_after = map(lambda x: Token(*x), hidden_tokens_after if hidden_tokens_after else [])
+        self.hidden_tokens_before = map(self._translate_tokens_to_ast_node, hidden_tokens_before if hidden_tokens_before else [])
+        self.hidden_tokens_after = map(self._translate_tokens_to_ast_node, hidden_tokens_after if hidden_tokens_after else [])
+
+    def _translate_tokens_to_ast_node(self, token):
+        if token[0] == "ENDL":
+            return {
+                "type": token[0].lower(),
+                "value": token[1],
+                "indent": "",
+                "formatting": [],
+            }
+        return {
+            "type": token[0].lower(),
+            "value": token[1],
+        }
 
     def __repr__(self):
         return "Token(%r, %r)" % (self.name, self.value)
