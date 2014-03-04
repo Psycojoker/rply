@@ -46,7 +46,9 @@ class Token(BaseBox):
         return self.name == other.name and self.value == other.value
 
     def render(self):
-        return self.before_space + self.value + self.after_space
+        before = "".join(map(lambda x: x["value"], self.hidden_tokens_before))
+        after = "".join(map(lambda x: x["value"], self.hidden_tokens_after))
+        return before + self.value + after
 
     def gettokentype(self):
         """
