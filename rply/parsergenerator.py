@@ -85,6 +85,7 @@ class ParserGenerator(object):
             #real_targ = state_or_targ if targ is None else targ
             #returned = func(state_or_targ) if targ is None else func(state_or_targ, targ)
             #print "%s (%s)\n%s\n->\n%s\n" % (rule, func.func_name, real_targ, json.dumps(returned, indent=4))
+            #print "%s (%s)\n%s\n->\n%s\n" % (rule, func.func_name, real_targ, returned)
             #return returned
             return func(state_or_targ) if targ is None else func(state_or_targ, targ)
 
