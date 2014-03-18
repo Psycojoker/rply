@@ -38,7 +38,7 @@ class Token(BaseBox):
         }
 
     def __repr__(self):
-        return "Token(%r, %r)" % (self.name, self.value)
+        return "Token(%r, %r, %s, %s)" % (self.name, self.value, self.hidden_tokens_before, self.hidden_tokens_after)
 
     def __eq__(self, other):
         if not isinstance(other, Token):
