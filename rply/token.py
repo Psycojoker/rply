@@ -29,8 +29,8 @@ class Token(BaseBox):
             return {
                 "type": token[0].lower(),
                 "value": token[1],
-                "indent": "",
-                "formatting": [],
+                "indent": token[3][0][1] if len(token) == 4 and token[3] else "",
+                "formatting": map(self._translate_tokens_to_ast_node, token[2]) if len(token) >= 3 else [],
             }
         return {
             "type": token[0].lower(),
